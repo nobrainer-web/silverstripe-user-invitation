@@ -163,7 +163,7 @@ class UserController extends Controller implements PermissionProvider
         return $this->redirectBack();
     }
 
-    public function validateForm(Form $form)
+    public function authorizeForm(Form $form)
     {
         if (!Permission::check('ACCESS_USER_INVITATIONS')) {
             $form->sessionMessage(

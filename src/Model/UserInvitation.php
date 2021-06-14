@@ -19,13 +19,13 @@ use SilverStripe\Security\RandomGenerator;
  * @property string Email
  * @property string TempHash
  * @property string Groups
- * @property int InvitedByID
+ * @property int    InvitedByID
  * @property Member InvitedBy
  *
  */
 class UserInvitation extends DataObject
 {
-    private static $table_name = "UserInvitation";
+    private static $table_name = 'UserInvitation';
 
     /**
      * Used to control whether a group selection on the invitation form is required.
@@ -35,9 +35,9 @@ class UserInvitation extends DataObject
 
     private static $db = [
         'FirstName' => 'Varchar',
-        'Email' => 'Varchar(254)',
-        'TempHash' => 'Varchar',
-        'Groups' => 'Text'
+        'Email'     => 'Varchar(254)',
+        'TempHash'  => 'Varchar',
+        'Groups'    => 'Text'
     ];
 
     private static $has_one = [
@@ -45,8 +45,13 @@ class UserInvitation extends DataObject
     ];
 
     private static $indexes = [
-        'Email' => true,
+        'Email'    => true,
         'TempHash' => true
+    ];
+
+    private static $summary_fields = [
+        'FirstName',
+        'Email',
     ];
 
     /**
@@ -56,7 +61,11 @@ class UserInvitation extends DataObject
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
-        $fields->removeByName('TempHash');
+        $fields->removeByName(['TempHash']);
+
+        $fields->replaceField('InvitedByID',
+            $fields->dataFieldByName('InvitedByID')->performReadonlyTransformation());
+
         return $fields;
     }
 
@@ -87,7 +96,7 @@ class UserInvitation extends DataObject
             )->setHTMLTemplate('email/UserInvitationEmail')
             ->setData(
                 [
-                    'Invite' => $this,
+                    'Invite'  => $this,
                     'SiteURL' => Director::absoluteBaseURL(),
                 ]
             );
@@ -103,21 +112,22 @@ class UserInvitation extends DataObject
      */
     public function validate()
     {
-        $valid = parent::validate();
+        $validator = parent::validate();
 
         if (self::get()->filter('Email', $this->Email)->first()) {
             // UserInvitation already sent
-            $valid->addError(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
+            $validator->addError(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
         }
 
         if (Member::get()->filter('Email', $this->Email)->first()) {
             // Member already exists
-            $valid->addError(_t(
+            $validator->addError(_t(
                 'UserInvitation.MEMBER_ALREADY_EXISTS',
                 'This person is already a member of this system.'
             ));
         }
-        return $valid;
+
+        return $validator;
     }
 
     /**
@@ -134,6 +144,7 @@ class UserInvitation extends DataObject
         if ($rounded > $days) {
             $result = true;
         }
+
         return $result;
     }
 
