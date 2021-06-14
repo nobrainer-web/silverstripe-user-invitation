@@ -26,7 +26,6 @@ use SilverStripe\Security\Security;
 
 class UserController extends Controller implements PermissionProvider
 {
-
     private static $allowed_actions = [
         'index',
         'accept',
@@ -41,7 +40,7 @@ class UserController extends Controller implements PermissionProvider
     {
         return [
             'ACCESS_USER_INVITATIONS' => [
-                'name' => _t(
+                'name'     => _t(
                     'UserController.ACCESS_PERMISSIONS',
                     'Allow user invitations'
                 ),
@@ -60,6 +59,7 @@ class UserController extends Controller implements PermissionProvider
         if (!Security::getCurrentUser()) {
             $security = Injector::inst()->get(Security::class);
             $link = $security->Link('login');
+
             return $this->redirect(Controller::join_links(
                 $link,
                 "?BackURL={$this->Link('index')}"
@@ -72,7 +72,7 @@ class UserController extends Controller implements PermissionProvider
         if (!Permission::check('ACCESS_USER_INVITATIONS')) {
             return Security::permissionFailure();
         } else {
-            return $this->renderWith(['Layout/UserController', 'Page']);
+            return $this->render();
         }
     }
 
@@ -121,36 +121,19 @@ class UserController extends Controller implements PermissionProvider
             $requiredFields
         );
         $this->extend('updateInvitationForm', $form);
+
         return $form;
     }
 
     /**
      * Records and sends the user's invitation
-     * @param $data
+     * @param      $data
      * @param Form $form
      * @return bool|HTTPResponse
      */
     public function sendInvite($data, Form $form)
     {
-        if (!Permission::check('ACCESS_USER_INVITATIONS')) {
-            $form->sessionMessage(
-                _t(
-                    'UserController.PERMISSION_FAILURE',
-                    "You don't have permission to create user invitations"
-                ),
-                'bad'
-            );
-            return $this->redirectBack();
-        }
-        if (!$form->validationResult()->isValid()) {
-            $form->sessionMessage(
-                _t(
-                    'UserController.SENT_INVITATION_VALIDATION_FAILED',
-                    'At least one error occured while trying to save your invite: {error}',
-                    ['error' => $form->getValidator()->getErrors()[0]['fieldName']]
-                ),
-                'bad'
-            );
+        if (!$this->validateForm($form)) {
             return $this->redirectBack();
         }
 
@@ -163,6 +146,7 @@ class UserController extends Controller implements PermissionProvider
                 $e->getMessage(),
                 'bad'
             );
+
             return $this->redirectBack();
         }
         $invite->sendInvitation();
@@ -175,7 +159,38 @@ class UserController extends Controller implements PermissionProvider
             ),
             'good'
         );
+
         return $this->redirectBack();
+    }
+
+    public function validateForm(Form $form)
+    {
+        if (!Permission::check('ACCESS_USER_INVITATIONS')) {
+            $form->sessionMessage(
+                _t(
+                    'UserController.PERMISSION_FAILURE',
+                    "You don't have permission to create user invitations"
+                ),
+                'bad'
+            );
+
+            return false;
+        }
+
+        if (!$form->validationResult()->isValid()) {
+            $form->sessionMessage(
+                _t(
+                    'UserController.SENT_INVITATION_VALIDATION_FAILED',
+                    'At least one error occured while trying to save your invite: {error}',
+                    ['error' => $form->getValidator()->getErrors()[0]['fieldName']]
+                ),
+                'bad'
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     public function accept()
@@ -193,10 +208,8 @@ class UserController extends Controller implements PermissionProvider
         } else {
             return $this->redirect($this->Link('notfound'));
         }
-        return $this->renderWith(
-            ['Layout/UserController_accept', 'Page'],
-            ['Invite' => $invite]
-        );
+
+        return $this->render(['Invite' => $invite]);
     }
 
     public function AcceptForm()
@@ -233,11 +246,12 @@ class UserController extends Controller implements PermissionProvider
             $requiredFields
         );
         $this->extend('updateAcceptForm', $form);
+
         return $form;
     }
 
     /**
-     * @param $data
+     * @param      $data
      * @param Form $form
      * @return bool|SS_HTTPResponse
      */
@@ -266,16 +280,19 @@ class UserController extends Controller implements PermissionProvider
                     $e->getMessage(),
                     'bad'
                 );
+
                 return $this->redirectBack();
             }
             // Delete invitation
             $invite->delete();
+
             return $this->redirect($this->Link('success'));
         } else {
             $form->sessionMessage(
                 Convert::array2json($form->getValidator()->getErrors()),
                 'bad'
             );
+
             return $this->redirectBack();
         }
     }
@@ -284,22 +301,9 @@ class UserController extends Controller implements PermissionProvider
     {
         $security = Injector::inst()->get(Security::class);
 
-        return $this->renderWith(
-            ['Layout/UserController_success', 'Page'],
-            [
-                'LoginLink' => $security->Link('login'),
-            ]
-        );
-    }
-
-    public function expired()
-    {
-        return $this->renderWith(['Layout/UserController_expired', 'Page']);
-    }
-
-    public function notfound()
-    {
-        return $this->renderWith(['Layout/UserController_notfound', 'Page']);
+        return $this->render([
+            'LoginLink' => $security->Link('login')
+        ]);
     }
 
     private function forbiddenError()
@@ -319,7 +323,7 @@ class UserController extends Controller implements PermissionProvider
      * Ensure that links for this controller use the customised route.
      * Searches through the rules set up for the class and returns the first route.
      *
-     * @param  string $action
+     * @param string $action
      * @return string
      */
     public function Link($action = null)
@@ -332,6 +336,7 @@ class UserController extends Controller implements PermissionProvider
             if ($indexOf = stripos($url, '/')) {
                 $url = substr($url, 0, $indexOf);
             }
+
             return $this->join_links($url, $action);
         }
     }
