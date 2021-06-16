@@ -52,21 +52,6 @@ class UserController extends Controller implements PermissionProvider
         ];
     }
 
-    public function init()
-    {
-        parent::init();
-
-        if (!Security::getCurrentUser()) {
-            $security = Injector::inst()->get(Security::class);
-            $link = $security->Link('login');
-
-            return $this->redirect(Controller::join_links(
-                $link,
-                "?BackURL={$this->Link('index')}"
-            ));
-        }
-    }
-
     public function index()
     {
         if (!Permission::check('ACCESS_USER_INVITATIONS')) {
