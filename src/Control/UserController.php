@@ -63,10 +63,10 @@ class UserController extends Controller implements PermissionProvider
 
     public function InvitationForm()
     {
-        $groups = Member::currentUser()->Groups()->map(
-            'Code',
-            'Title'
-        )->toArray();
+        $groups = [];
+        if ($member = Security::getCurrentUser()) {
+            $groups = $member->Groups()->map('Code', 'Title')->toArray();
+        }
         $fields = FieldList::create(
             TextField::create(
                 'FirstName',
