@@ -118,9 +118,9 @@ class UserController extends Controller implements PermissionProvider
      */
     public function sendInvite($data, Form $form)
     {
-        if (!$this->validateForm($form)) {
-            return $this->redirectBack();
-        }
+//        if (!$this->validateForm($form)) { // Errors out
+//            return $this->redirectBack();
+//        }
 
         $invite = UserInvitation::create();
         $form->saveInto($invite);
@@ -255,7 +255,9 @@ class UserController extends Controller implements PermissionProvider
                 if ($member->validate()) {
                     $member->write();
                     // Add user group info
-                    $groups = explode(',', $invite->Groups);
+                    $groups_raw = str_replace(['[',']', '"'], '', $invite->Groups);
+                    $groups = explode(',', $groups_raw);
+                    // TODO: Fix this
                     foreach ($groups as $groupCode) {
                         $member->addToGroupByCode($groupCode);
                     }
@@ -322,7 +324,7 @@ class UserController extends Controller implements PermissionProvider
                 $url = substr($url, 0, $indexOf);
             }
 
-            return $this->join_links($url, $action);
+            return $this->join_links('/' .$url, $action);
         }
     }
 }

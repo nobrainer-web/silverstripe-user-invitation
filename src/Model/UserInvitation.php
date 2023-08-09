@@ -2,10 +2,14 @@
 
 namespace FSWebWorks\SilverStripe\UserInvitations\Model;
 
+use LeKoala\CmsActions\CustomAction;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
+use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\ListboxField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\RandomGenerator;
@@ -61,8 +65,20 @@ class UserInvitation extends DataObject
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
-        $fields->removeByName(['TempHash']);
+        //$fields->removeByName(['TempHash']);
 
+        $groups = Group::get()->map('Code', 'Title')->toArray();
+
+        $fields->addFieldsToTab('Root.Main', [
+            CheckboxSetField::create(
+                'Groups',
+                _t('UserController.INVITE_GROUP', 'Add to group'),
+                $groups
+            )
+        ]);
+
+        $fields->replaceField('TempHash',
+            $fields->dataFieldByName('TempHash')->performReadonlyTransformation());
         $fields->replaceField('InvitedByID',
             $fields->dataFieldByName('InvitedByID')->performReadonlyTransformation());
 
@@ -71,6 +87,20 @@ class UserInvitation extends DataObject
 
     public function onBeforeWrite()
     {
+//        $groups_raw = str_replace(['[',']', '"'], '', $this->Groups);
+//
+//        echo "<pre>";
+//        echo "Groups: " . $this->dbObject('Groups') . "<br>";
+//        echo "Groups replaced: " . $groups_raw . "<br>";
+//        $groups = explode(',', $groups_raw);
+//        // TODO: Fix this
+//        foreach ($groups as $groupCode) {
+//            echo "Group code: " . $groupCode . "<br>";
+//        }
+//
+//        echo "</pre>";
+//        die;
+//
         if (!$this->ID) {
             $generator = new RandomGenerator();
             $this->TempHash = $generator->randomToken('sha1');
@@ -113,10 +143,13 @@ class UserInvitation extends DataObject
     public function validate()
     {
         $validator = parent::validate();
+                $exists = $this->isInDB();
 
+                        if (!$exists) {
+                            // We are creating a now invite
         if (self::get()->filter('Email', $this->Email)->first()) {
             // UserInvitation already sent
-            $validator->addError(_t('UserInvitation.INVITE_ALREADY_SENT', 'This user was already sent an invite.'));
+            $validator->addError(_t('UserInvitation.INVITE_ALREADY_CREATED', 'An invite was already created for this user.'));
         }
 
         if (Member::get()->filter('Email', $this->Email)->first()) {
@@ -126,6 +159,7 @@ class UserInvitation extends DataObject
                 'This person is already a member of this system.'
             ));
         }
+                        }
 
         return $validator;
     }
@@ -151,5 +185,22 @@ class UserInvitation extends DataObject
     public function canCreate($member = null, $context = null)
     {
         return Permission::check('ACCESS_USER_INVITATIONS');
+    }
+
+    public function getCMSActions()
+    {
+        $actions = parent::getCMSActions();
+
+        $actions->push(new CustomAction("doCustomActionSendInvitation", "Send invitation"));
+
+        return $actions;
+    }
+
+    public function doCustomActionSendInvitation() {
+        if ($email = $this->sendInvitation()) {
+            return $email;
+        }
+
+        return 'Invite was NOT send';
     }
 }
