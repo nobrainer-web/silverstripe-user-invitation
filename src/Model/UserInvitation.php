@@ -173,7 +173,7 @@ class UserInvitation extends DataObject
         $result = false;
         $days = self::config()->get('days_to_expiry');
         $time = DBDatetime::now()->getTimestamp();
-        $ago = abs($time - strtotime($this->Created));
+        $ago = abs($time - strtotime($this->LastEdited));
         $rounded = round($ago / 86400);
         if ($rounded > $days) {
             $result = true;
