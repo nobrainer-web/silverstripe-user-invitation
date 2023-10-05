@@ -7,6 +7,8 @@ use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\ListboxField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\RequiredFields;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Group;
@@ -136,6 +138,14 @@ class UserInvitation extends DataObject
         return $email;
     }
 
+    public function getCMSValidator()
+    {
+        return new RequiredFields([
+            'FirstName',
+            'Email'
+        ]);
+    }
+
     /**
      * Checks if a user invite was already sent, or if a user is already a member
      * @return ValidationResult
@@ -191,12 +201,17 @@ class UserInvitation extends DataObject
     {
         $actions = parent::getCMSActions();
 
+        if ($this->isInDB()) {
         $actions->push(new CustomAction("doCustomActionSendInvitation", "Send invitation"));
+        } else {
+            $actions->push(LiteralField::create('doCustomActionSendInvitationUnavailable', "<span class=\"bb-align\">Create/Save before sending invite!</span>"));
+        }
 
         return $actions;
     }
 
     public function doCustomActionSendInvitation() {
+
         if ($email = $this->sendInvitation()) {
             return $email;
         }
