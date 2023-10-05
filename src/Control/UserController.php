@@ -287,9 +287,14 @@ class UserController extends Controller implements PermissionProvider
     public function success()
     {
         $security = Injector::inst()->get(Security::class);
+        $link = 'login';
 
+        $back_url = Config::inst()->get(UserController::class, 'back_url');
+
+        $link = ($back_url) ? $link . '?BackURL=' . $back_url: $link ;
+        
         return $this->render([
-            'LoginLink' => $security->Link('login')
+            'LoginLink' => $security->Link($link)
         ]);
     }
 

@@ -3,3 +3,5 @@ Name: userinvitationconfig
 ---
 FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
   days_to_expiry: 2 # Days until an invitation expires
+FSWebWorks\SilverStripe\UserInvitations\Control\UserController:
+  back_url: '/admin/'
