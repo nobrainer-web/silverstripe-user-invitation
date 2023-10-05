@@ -60,6 +60,18 @@ class UserInvitation extends DataObject
         'Email',
     ];
 
+    public function provideI18nEntities()
+    {
+        return [
+            'UserInvitation.SINGULARNAME' => 'User invitation',
+            'UserInvitation.PLURALNAME' => 'User invitations',
+            'UserInvitation.PLURALS' => [
+                'one' => 'An User invitation',
+                'other' => '{count} User invitations',
+            ],
+        ];
+    }
+
     /**
      * Removes the hash field from the list.
      * @return FieldList
@@ -204,7 +216,7 @@ class UserInvitation extends DataObject
         if ($this->isInDB()) {
         $actions->push(new CustomAction("doCustomActionSendInvitation", "Send invitation"));
         } else {
-            $actions->push(LiteralField::create('doCustomActionSendInvitationUnavailable', "<span class=\"bb-align\">Create/Save before sending invite!</span>"));
+            $actions->push(LiteralField::create('doCustomActionSendInvitationUnavailable', "<span class=\"bb-align\">" . _t('UserInvitation.CreateSaveBeforeSending', 'Create/Save before sending invite!')."</span>"));
         }
 
         return $actions;

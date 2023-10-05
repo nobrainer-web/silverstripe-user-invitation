@@ -1,0 +1,46 @@
+da:
+  FSWebWorks\SilverStripe\UserInvitations\Admin\UserInvitationsAdmin:
+    MENUTITLE: 'Invitér brugere'
+  FSWebWorks\SilverStripe\UserInvitations\Model\UserInvitation:
+    SINGULARNAME: 'Bruger invitation'
+    PLURALNAME: 'Bruger invitationer'
+    PLURALS:
+      one: 'En bruger invitation'
+      other: '{count} bruger invitationer'
+  UserController:
+    403_NOTICE: 'Du skal være logget ind for at få adgang til denne side.'
+    ACCEPTED_BODY: 'Du er nu blevet oprettet som bruger.'
+    ACCEPTFORM_FIRSTNAME: 'Fornavn:'
+    ACCEPTFORM_REGISTER: 'Registrér'
+    ACCEPTFORM_SURNAME: 'Efternavn:'
+    ACCESS_PERMISSIONS: 'Tillad bruger invitationer'
+    CMS_ACCESS_CATEGORY: 'Bruger invitationer'
+    EXPIRED_BODY: 'Ups, denne invitation til at blive oprettet som bruger, er desværre udløbet. Anmod om en ny invitation.'
+    INVITE_EMAIL: 'Inviter E-mail:'
+    INVITE_FIRSTNAME: 'Fornavn:'
+    INVITE_GROUP: 'Invitér til gruppe'
+    INVITE_GROUP_RIGHTTITLE: 'Ctrl + klik for at vælge flere'
+    NOTFOUND_BODY: 'Ups, invitationen med dette ID kunne ikke findes.'
+    PERMISSION_FAILURE: 'Du har ikke tilladelse til at invitere brugere'
+    SEND_INVITATION: 'Send Invitation'
+    SENT_INVITATION: 'En invitation blev sendt til {email}.'
+    SENT_INVITATION_VALIDATION_FAILED: 'Der skete mindst en fejl, under forsøget på at gemme invitationen: {error}'
+  UserInvation:
+    EMAIL_SUBJECT: 'Invitation fra {name}'
+    INVITEFORM_BODY: 'Udfyld med informationerne på personen du vil invitere herunder.'
+    INVITEFORM_HEADING: 'Bruger invitation'
+  UserInvitation:
+    ACCEPTED_BODY: 'Udfyld formularen herunder for at bekræfte din oprettelse for {name}'
+    ACCEPTED_HEADING: 'Sådan!'
+    ACCEPTED_LOGIN_LINK_TEXT: 'Klik her for at logge ind.'
+    ACCEPTED_SIGN_UP: 'Opret dig'
+    CreateSaveBeforeSending: 'Opret / Gem før du kan sende invitationen!'
+    EMAIL_SUBJECT: 'Invitation fra {name}'
+    EXPIRED_HEADING: 'Invitation udløbet'
+    INVITE_ALREADY_CREATED: 'En invitation er allerede oprettet til denne bruger.'
+    MEMBER_ALREADY_EXISTS: 'Denne bruger er allerede oprettet som bruger i systemet.'
+    NOTFOUND_HEADING: 'Invitationen blev ikke fundet'
+  UserInvitationEmail:
+    ACCEPT: 'klik her for at acceptere invitationen.'
+    BODY: 'Du er blevet inviteret til at blive oprettet som bruger på {site} af {inviterName} '
+    HEADING: 'Hej {name}'
