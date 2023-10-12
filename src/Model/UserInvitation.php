@@ -168,7 +168,7 @@ class UserInvitation extends DataObject
                 $exists = $this->isInDB();
 
                         if (!$exists) {
-                            // We are creating a now invite
+                            // We are creating a new invite
         if (self::get()->filter('Email', $this->Email)->first()) {
             // UserInvitation already sent
             $validator->addError(_t('UserInvitation.INVITE_ALREADY_CREATED', 'An invite was already created for this user.'));
