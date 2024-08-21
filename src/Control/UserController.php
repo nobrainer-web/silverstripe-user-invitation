@@ -222,7 +222,7 @@ class UserController extends Controller implements PermissionProvider
                 _t('UserController.ACCEPTFORM_REGISTER', 'Register')
             )
         );
-        $requiredFields = RequiredFields::create('FirstName', 'Surname');
+        $requiredFields = RequiredFields::create('FirstName');
         $form = new Form(
             $this,
             'AcceptForm',
